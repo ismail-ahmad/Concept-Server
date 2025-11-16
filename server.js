@@ -27,12 +27,13 @@ app.post('/signin', async (req, res) => {
     try{
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = result.rows[0];
-        if(user.length === 0) {
+        if(!user) {
             return res.status(401).json({status: 'User not found!'})
         }
         if(password === user.password) {
-            return res.status(200).json({status: 'ok'})
+            return res.status(200).json({status: 'ok'});
         }
+            return res.status(401).json({status: 'Wrong Credentials!'});
     } catch(err) {
         console.log(`${err.statusCode}, Error Message: ${err}`);
         return res.status(500).json({error: 'server error during signin!'});
