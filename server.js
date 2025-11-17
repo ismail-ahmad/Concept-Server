@@ -3,7 +3,7 @@ const app = express();
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 
-const bcrypt = require('bcrypt'); //it will be used later to compare saved password hashes and current password
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
@@ -34,21 +34,36 @@ app.post('/signin', async (req, res) => {
         if(!user) {
             return res.status(401).json({status: 'User not found!'})
         }
-        if(password === user.password) { //later use bcrypt to compare credentials
+        const match = await bcrypt.compare(password, user.password);
+        if(match) { //later use bcrypt to compare credentials
             //sign jwt for both refreshtoken and active token and send in the response to the app to be stored and send in next request
             const payload = {
-                user: user.email,
-                name: user.name,
+                userID: user.id,
                 role: user.role,
-                tokenVersion: user.tokenversion
-            };
+                tokenVersion: user.token_version,
+                access: user.access
+            }; //access will be included when other screens would be ready!
+
+            const expiredAt = new Date( Date.now() + 30 * 24 * 60 * 60 * 1000);
             const activeToken = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
             const refreshToken = jwt.sign(payload, REFRESH_JWT_SECRET, {expiresIn: '30d'});
+            const refreshTokenHash = await bcrypt.hash(refreshToken, 12);
+
+
+            const session = await pool.query(`
+                INSERT INTO user_sessions(user_id, refresh_token, expired_at)
+                VALUES(
+                  $1, $2, $3
+                );
+                `, [user.id,
+                  refreshTokenHash,
+                  expiredAt]);
+                  console.log(session);
             return res.status(200).json({status: 'signin', activeToken, refreshToken});
         }
             return res.status(401).json({status: 'Wrong Credentials!'});
     } catch(err) {
-        console.log(`Error Message: ${err}`);
+        console.log(`Error: ${err.message}`);
         return res.status(500).json({error: 'server error during signin!'});
     }
 });
