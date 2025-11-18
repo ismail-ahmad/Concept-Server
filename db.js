@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 app.use(express.json());
 const pool = new Pool({
@@ -12,10 +13,10 @@ const pool = new Pool({
 
 (async() => {
     try{
-        const request = await pool.query(`
-          //
-        `);
-        console.log("successful Update!");
+        const request = await pool.query(
+            `DELETE FROM user_sessions`
+        );
+        console.log(request.rows[0].password);
     } catch(err) {
         console.log(`Error: ${err.message}`);
     }

@@ -32,7 +32,7 @@ app.post('/signin', async (req, res) => {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         const user = result.rows[0];
         if(!user) {
-            return res.status(401).json({status: 'User not found!'})
+            return res.status(401).json({status: 'Invalid Email or Password!'})
         }
         const match = await bcrypt.compare(password, user.password);
         if(match) { //later use bcrypt to compare credentials
@@ -61,7 +61,7 @@ app.post('/signin', async (req, res) => {
                   console.log(session);
             return res.status(200).json({status: 'signin', activeToken, refreshToken});
         }
-            return res.status(401).json({status: 'Wrong Credentials!'});
+            return res.status(401).json({status: 'Invalid Email or Password!'});
     } catch(err) {
         console.log(`Error: ${err.message}`);
         return res.status(500).json({error: 'server error during signin!'});
