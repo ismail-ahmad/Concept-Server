@@ -75,7 +75,7 @@ app.post('/signout', async (req, res) => {
     if(!authHeader){
         return res.json({status: 'no authorization header exist!'});
     }
-    console.log(`AuthHeader is present!`);
+    console.log(`AuthHeader is present!: ${JSON.stringify(authHeader)}`);
     const refreshToken = req.headers.authorization.split(' ')[1];
     let verified;
     try{
@@ -83,6 +83,8 @@ app.post('/signout', async (req, res) => {
     } catch(err){
         return res.status(401).json({ status: 'active token expired!' });
     }
+    console.log(`refreshToken: ${refreshToken}`);
+    console.log(`verified: ${verified}`);
     
     const decoded = jwt.decode(refreshToken);
     const payload = decoded.payload;
