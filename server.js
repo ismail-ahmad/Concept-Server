@@ -65,7 +65,7 @@ app.post('/signin', async (req, res) => {
             return res.status(401).json({status: 'Invalid Email or Password!'});
     } catch(err) {
         console.log(`Error: ${err.message}`);
-        return res.status(500).json({error: 'server error during signin!'});
+        return res.status(505).json({error: 'server error during signin!'});
     }
 });
 
@@ -75,6 +75,7 @@ app.post('/signout', async (req, res) => {
     if(!authHeader){
         return res.json({status: 'no authorization header exist!'});
     }
+    console.log(`AuthHeader is present!`);
     const refreshToken = req.headers.authorization.split(' ')[1];
     let verified;
     try{
@@ -82,17 +83,17 @@ app.post('/signout', async (req, res) => {
     } catch(err){
         return res.status(401).json({ status: 'active token expired!' });
     }
-    console.log(verified);
+    
     const decoded = jwt.decode(refreshToken);
     const payload = decoded.payload;
     const userID = payload.userID;
-    console.log(userID);
+    
     try{
         const dbRes = await pool.query(
             `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoked = false AND user_id = $1`,
             [userID]
         );
-        console.log(dbRes.rows);
+        
         if(dbRes.rowCount === 0){
             return res.json({status: 'no token found!'})
         }
@@ -108,7 +109,7 @@ app.post('/signout', async (req, res) => {
         if (!RF) {
             return res.status(401).json({ status: 'Invalid refresh token' });
         }
-        console.log(RF.session_id);
+        
             
         const session = RF.session_id;
         const setIsRevoke = await pool.query(
