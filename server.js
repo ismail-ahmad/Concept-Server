@@ -75,7 +75,6 @@ app.post('/signout', async (req, res) => {
     if(!authHeader){
         return res.json({status: 'no authorization header exist!'});
     }
-    console.log(`AuthHeader is present!: ${JSON.stringify(authHeader)}`);
     const refreshToken = req.headers.authorization.split(' ')[1];
     let verified;
     try{
@@ -92,7 +91,7 @@ app.post('/signout', async (req, res) => {
     
     try{
         const dbRes = await pool.query(
-            `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoked = false AND user_id = $1`,
+            `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoke = false AND user_id = $1`,
             [userID]
         );
         
