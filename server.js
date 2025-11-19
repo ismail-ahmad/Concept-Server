@@ -114,7 +114,7 @@ app.post('/signout', async (req, res) => {
             
         const session = RF.session_id;
         const setIsRevoke = await pool.query(
-            `UPDATE user_sessions SET is_revoked = true, expired_at = NOW() WHERE session_id = $1 AND user_id = $2`,
+            `UPDATE user_sessions SET is_revoke = true, expired_at = NOW() WHERE session_id = $1 AND user_id = $2`,
             [session, userID]
         );
         if (setIsRevoke) return res.json({status: 'sign out successful!'})

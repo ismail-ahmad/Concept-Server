@@ -13,10 +13,10 @@ const pool = new Pool({
 
 (async() => {
         try{
-            const dbRes = await pool.query(
-                `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoke = false AND user_id = $1`,
-                [`78686099-906f-494a-a6f9-f278422d8fea`]
-            );
+            const setIsRevoke = await pool.query(
+            `UPDATE user_sessions SET is_revoke = true, expired_at = NOW() WHERE session_id = $1 AND user_id = $2`,
+            [`6ea74abb-23c2-431d-8e09-27c4a114a038`, `78686099-906f-494a-a6f9-f278422d8fea`]
+        );
             if(dbRes.rowCount === 0){
                 console.log("count is zero!");
             } else{
