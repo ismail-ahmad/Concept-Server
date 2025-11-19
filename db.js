@@ -13,8 +13,11 @@ const pool = new Pool({
 
 (async() => {
     try{
+        let password = await bcrypt.hash('qwerty12345', 12);
         const request = await pool.query(
-            `DELETE FROM user_sessions`
+            `INSERT INTO users(name, email, password, token_version ,role)
+            VALUES($1, $2, $3, $4, $5)`,
+            ['ismail ahmad', 'ismailahmad0505@gmail.com', password, 1, 'master_admin']
         );
         console.log(request.rows[0].password);
     } catch(err) {

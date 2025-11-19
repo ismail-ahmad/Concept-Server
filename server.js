@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const decode = require('jwt-decode');
 
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -35,7 +36,7 @@ app.post('/signin', async (req, res) => {
             return res.status(401).json({status: 'Invalid Email or Password!'})
         }
         const match = await bcrypt.compare(password, user.password);
-        if(match) { //later use bcrypt to compare credentials
+        if(match) {
             //sign jwt for both refreshtoken and active token and send in the response to the app to be stored and send in next request
             const payload = {
                 userID: user.id,
@@ -66,6 +67,53 @@ app.post('/signin', async (req, res) => {
         console.log(`Error: ${err.message}`);
         return res.status(500).json({error: 'server error during signin!'});
     }
+});
+
+//sign-out
+app.post('/signout', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if(!authHeader){
+        return res.json({status: 'no authorization header exist!'});
+    }
+    const refreshToken = req.headers.authorization.split(' ')[1];
+    let verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
+    if(!verified){
+        return res.json({status: 'Invalid Refresh Token'})
+    }
+    const decoded = decode(refreshToken);
+    const payload = decoded.payload;
+    const userID = payload.userID;
+    try{
+        const dbRes = await pool.query(
+            `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoked = false AND user_id = $1`,
+            [userID]
+        );
+        if(dbRes.rowCount === 0){
+            return res.json({status: 'no token found!'})
+        }
+        let RF = null;
+        for (const entry of dbRes.rows) {
+            const match = await bcrypt.compare(refreshToken, entry.refresh_token);
+            if (match) {
+                RF = entry;
+                break;
+            }
+        }
+
+        if (!RF) {
+            return res.status(401).json({ status: 'Invalid refresh token' });
+        }
+            
+        const session = RF.session_id;
+        const setIsRevoke = await pool.query(
+            `UPDATE user_sessions SET is_revoked = true, expired_at = NOW() WHERE session_id = $1 AND user_id = $2`,
+            [session, userID]
+        );
+        if (setIsRevoke) return res.json({status: 'sign out successful!'})
+    }catch(err){
+        return res.json(err);
+    }
+
 });
 
 
