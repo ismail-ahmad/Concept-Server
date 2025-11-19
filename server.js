@@ -86,8 +86,7 @@ app.post('/signout', async (req, res) => {
     console.log(`verified: ${verified}`);
     
     const decoded = jwt.decode(refreshToken);
-    const payload = decoded.payload;
-    const userID = payload.userID;
+    const userID = decoded.userID;
     
     try{
         const dbRes = await pool.query(
