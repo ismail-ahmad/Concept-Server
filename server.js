@@ -77,17 +77,22 @@ app.post('/signout', async (req, res) => {
     }
     const refreshToken = req.headers.authorization.split(' ')[1];
     let verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
+    console.log(verified);
     if(!verified){
         return res.json({status: 'Invalid Refresh Token'})
     }
     const decoded = decode(refreshToken);
+    console.log(decoded);
     const payload = decoded.payload;
+    console.log(payload);
     const userID = payload.userID;
+    console.log(userID);
     try{
         const dbRes = await pool.query(
             `SELECT refresh_token, session_id FROM user_sessions WHERE is_revoked = false AND user_id = $1`,
             [userID]
         );
+        console.log(dbRes.rows);
         if(dbRes.rowCount === 0){
             return res.json({status: 'no token found!'})
         }
@@ -103,6 +108,7 @@ app.post('/signout', async (req, res) => {
         if (!RF) {
             return res.status(401).json({ status: 'Invalid refresh token' });
         }
+        console.log(RF.session_id);
             
         const session = RF.session_id;
         const setIsRevoke = await pool.query(
