@@ -76,15 +76,15 @@ app.post('/signout', async (req, res) => {
         return res.json({status: 'no authorization header exist!'});
     }
     const refreshToken = req.headers.authorization.split(' ')[1];
-    let verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
-    console.log(verified);
-    if(!verified){
-        return res.json({status: 'Invalid Refresh Token'})
+    let verified;
+    try{
+        verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET)
+    } catch(err){
+        return res.status(401).json({ status: 'active token expired!' });
     }
-    const decoded = decode(refreshToken);
-    console.log(decoded);
+    console.log(verified);
+    const decoded = jwt.decode(refreshToken);
     const payload = decoded.payload;
-    console.log(payload);
     const userID = payload.userID;
     console.log(userID);
     try{
