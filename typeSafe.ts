@@ -1,4 +1,4 @@
-import {express, Request, Response} from 'express';
+import express, { Request, Response} from 'express';
 const app = express();
 import { Pool } from 'pg';
 import jwt, { JwtPayload } from 'jsonwebtoken';
@@ -22,8 +22,8 @@ type credsTypes = {
 
 
 const port: number | string = process.env.PORT || 3000;
-const ACTIVE_JWT_SECRET: string | undefined = process.env.ACTIVE_JWT_SECRET;
-const REFRESH_JWT_SECRET: string | undefined = process.env.REFRESH_JWT_SECRET;
+const ACTIVE_JWT_SECRET = process.env.ACTIVE_JWT_SECRET as string;
+const REFRESH_JWT_SECRET = process.env.REFRESH_JWT_SECRET as string;
 app.use(express.json());
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -32,7 +32,7 @@ const pool = new Pool({
     }
 });
 
-app.get('/', (req: Request, res:Response ): string  => {
+app.get('/', (req: Request, res:Response )  => {
     return res.status(200).send('<h1>Server is up and running!</h1>');
 });
 
@@ -73,7 +73,6 @@ app.post('/signin', async (req: Request, res:Response) => {
                 `, [user.id,
                   refreshTokenHash,
                   expiredAt]);
-                  console.log(session);
             return res.status(200).json({status: 'signin', activeToken, refreshToken});
         }
             return res.status(401).json({status: 'Invalid Email or Password!'});
@@ -89,18 +88,20 @@ app.post('/signout', async (req: Request, res:Response) => {
     if(!authHeader){
         return res.json({status: 'no authorization header exist!'});
     }
-    const refreshToken = req.headers.authorization.split(' ')[1];
+    const refreshToken = authHeader.split(' ')[1];
     let verified;
     try{
         verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET)
     } catch(err){
         return res.status(401).json({ statusText: 'active token expired!' });
     }
-    console.log(`refreshToken: ${refreshToken}`);
     console.log(`verified: ${verified}`);
     
-    const decoded = jwt.decode(refreshToken);
-    const userID = decoded.userID;
+    const decoded = jwt.decode(refreshToken) as userTypes | null;
+    if(!decoded){
+         throw new Error('Invalid Refresh Token!');
+    }
+    let userID: UUID | number | string = decoded.userID;
     
     try{
         const dbRes = await pool.query(
