@@ -93,7 +93,7 @@ app.post('/signout', async (req, res) => {
         );
         
         if(dbRes.rowCount === 0){
-            return res.json({status: 'no token found!'})
+            return res.json({statusText: 'no token found!'})
         }
         let RF = null;
         for (const entry of dbRes.rows) {
@@ -105,7 +105,7 @@ app.post('/signout', async (req, res) => {
         }
 
         if (!RF) {
-            return res.status(401).json({ status: 'Invalid refresh token' });
+            return res.status(401).json({ statusText: 'Invalid refresh token' });
         }
         
             
