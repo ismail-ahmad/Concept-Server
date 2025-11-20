@@ -73,17 +73,15 @@ app.post('/signin', async (req, res) => {
 app.post('/signout', async (req, res) => {
     const authHeader = req.headers.authorization;
     if(!authHeader){
-        return res.json({status: 'no authorization header exist!'});
+        return res.json({statusText: 'no authorization header exist!'});
     }
     const refreshToken = req.headers.authorization.split(' ')[1];
     let verified;
     try{
         verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET)
     } catch(err){
-        return res.status(401).json({ status: 'active token expired!' });
+        return res.status(401).json({ statusText: 'refresh token expired!' });
     }
-    console.log(`refreshToken: ${refreshToken}`);
-    console.log(`verified: ${verified}`);
     
     const decoded = jwt.decode(refreshToken);
     const userID = decoded.userID;
@@ -116,7 +114,7 @@ app.post('/signout', async (req, res) => {
             `UPDATE user_sessions SET is_revoke = true, expired_at = NOW() WHERE session_id = $1 AND user_id = $2`,
             [session, userID]
         );
-        return res.json({message: 'sign out successful!'});
+        return res.json({statusText: 'sign out successful!'});
     }catch(err){
         return res.json(err);
     }
