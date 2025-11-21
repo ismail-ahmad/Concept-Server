@@ -29,7 +29,7 @@ const authMiddleware = (req, res, next) => {
     //verify the activetoken received
     let verified;
     try{
-        verified = jwt.verify(activeToken, ACTIVE_JWT_SECRET);
+        verified = bcrypt.verify(activeToken, ACTIVE_JWT_SECRET);
     } catch(err){
         return res.status(403).json({message: 'active token expired!'});
     }
@@ -178,7 +178,7 @@ app.post('/refresh-token', async(req, res) => {
 
     if(verified && !isRevoke){
         const dbUser = await pool.query(
-            `SELECT * FROM users WHERE user_id = $1`, [userID]
+            `SELECT * FROM users WHERE id = $1`, [userID]
         );
         const payload = {
             userID: dbUser.user_id,
