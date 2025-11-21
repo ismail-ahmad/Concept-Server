@@ -61,7 +61,7 @@ app.post('/signin', async (req, res) => {
             }; //access will be included when other screens would be ready!
 
             const expiredAt = new Date( Date.now() + 30 * 24 * 60 * 60 * 1000);
-            const activeToken = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15s'});
+            const activeToken = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
             const refreshToken = jwt.sign(payload, REFRESH_JWT_SECRET, {expiresIn: '30d'});
             const refreshTokenHash = await bcrypt.hash(refreshToken, 12);
 
@@ -189,7 +189,7 @@ app.post('/refresh-token', async(req, res) => {
             tokenVersion: dbUser.tokenVersion,
             access: dbUser.access
         }
-        const activeJwt = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15s'});
+        const activeJwt = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
 
         res.status(200).json({activeJwt});
     }
