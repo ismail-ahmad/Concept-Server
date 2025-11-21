@@ -22,6 +22,22 @@ app.get('/', (req, res) => {
     res.status(200).send('<h1>Server is up and running!</h1>');
 });
 
+const authMiddleware = (req, res, next) => {
+    //I want to try here so that every request that passes through goes through this for token verification
+    let authHeader = req.headers.authorization;
+    let activeToken = authHeader.split(' ')[1];
+    //verify the activetoken received
+    try{
+        verified = jwt.verify(activeToken, ACTIVE_JWT_SECRET);
+    } catch(err){
+        return res.status(403).json({message: 'active token expired!'});
+    }
+    console.log('middleware');
+    next();
+}
+
+app.use('/auth', authMiddleware);
+
 app.post('/signin', async (req, res) => {
     const creds = req.body;
     const { email, password } = creds;
@@ -122,14 +138,59 @@ app.post('/signout', async (req, res) => {
 });
 
 
-app.post('/auth', (req, res) => {
-    //verify the tokens received
-    //if not verified, send 401 to the app
+app.post('/auth', (req, res, ) => {
+    return res.status(200).json({message: 'active token verified!'});
 });
 
-app.post('/refresh-token', (req, res) => {
-    //refresh token would be checked here
-    //if refresh token is valid, it would generate a new activeToken that the app can use to send with each next request
+app.post('/refresh-token', async(req, res) => {
+    const authHeader = req.headers.authorization;
+    const refreshToken = authHeader.split(" ")[1];
+    let decoded = jwt.decode(refreshToken);
+    let userID = decoded.userID;
+    let dbEntry = null;
+    let dbRes = await pool.query(
+        `SELECT session_id, refresh_token FROM user_sessions WHERE is_revoke = $1 AND user_id = $2`, [false, userID]
+    );
+    if(dbRes.rowCount === 0){
+        return res.status(404);
+    }
+    for(const entry of dbRes.rows){
+        let match = jwt.compare(refreshToken, entry.refresh_token)
+        if(match){
+            dbEntry = entry;
+            break;
+        }
+    }
+    let verified;
+    let isRevoke = dbEntry.is_revoke;
+    try{
+        verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
+    } catch(err){
+        const dbQuery = await pool.query(
+            `UPDATE user_sessions SET is_revoke = true WHERE refresh_token = $1 AND user_id = $2 AND session_id = $3`
+            ,[dbEntry.refresh_token, userID, dbEntry.session_id]
+        );
+        return res.status(403);
+    }
+
+    if(verified && isRevoke){
+        res.status(403).json({message: 'Token was revoked!'});
+    }
+
+    if(verified && !isRevoke){
+        const dbUser = await pool.query(
+            `SELECT * FROM users WHERE user_id = $1`, [userID]
+        );
+        const payload = {
+            userID: dbUser.user_id,
+            role: dbUser.role,
+            tokenVersion: dbUser.tokenVersion,
+            access: dbUser.access
+        }
+        const activeJwt = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
+
+        res.status(200).json({activeJwt});
+    }
 });
 
 app.listen(port, () => {
