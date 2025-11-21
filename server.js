@@ -37,8 +37,6 @@ const authMiddleware = (req, res, next) => {
     next();
 }
 
-app.use('/auth', authMiddleware);
-
 app.post('/signin', async (req, res) => {
     const creds = req.body;
     const { email, password } = creds;
@@ -139,7 +137,7 @@ app.post('/signout', async (req, res) => {
 });
 
 
-app.post('/auth', (req, res, ) => {
+app.post('/auth', authMiddleware, (req, res, ) => {
     return res.status(200).json({message: 'active token verified!'});
 });
 
