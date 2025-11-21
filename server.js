@@ -29,7 +29,7 @@ const authMiddleware = (req, res, next) => {
     //verify the activetoken received
     let verified;
     try{
-        verified = bcrypt.verify(activeToken, ACTIVE_JWT_SECRET);
+        verified = jwt.verify(activeToken, ACTIVE_JWT_SECRET);
     } catch(err){
         return res.status(403).json({message: 'active token expired!'});
     }
