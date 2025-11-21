@@ -61,7 +61,7 @@ app.post('/signin', async (req, res) => {
             }; //access will be included when other screens would be ready!
 
             const expiredAt = new Date( Date.now() + 30 * 24 * 60 * 60 * 1000);
-            const activeToken = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
+            const activeToken = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15s'});
             const refreshToken = jwt.sign(payload, REFRESH_JWT_SECRET, {expiresIn: '30d'});
             const refreshTokenHash = await bcrypt.hash(refreshToken, 12);
 
@@ -172,7 +172,7 @@ app.post('/refresh-token', async(req, res) => {
             `UPDATE user_sessions SET is_revoke = true WHERE refresh_token = $1 AND user_id = $2 AND session_id = $3`
             ,[dbEntry.refresh_token, userID, dbEntry.session_id]
         );
-        return res.status(403);
+        return res.status(403).json({message: 'Refresh token expired!'});
     }
 
     if(verified && isRevoke){
@@ -189,7 +189,7 @@ app.post('/refresh-token', async(req, res) => {
             tokenVersion: dbUser.tokenVersion,
             access: dbUser.access
         }
-        const activeJwt = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15m'});
+        const activeJwt = jwt.sign(payload, ACTIVE_JWT_SECRET, {expiresIn: '15s'});
 
         res.status(200).json({activeJwt});
     }
