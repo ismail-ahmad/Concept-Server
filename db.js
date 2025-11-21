@@ -22,7 +22,6 @@ const pool = new Pool({
                 if(dbRes.rowCount === 0){
                     console.log('0 Row Count!');
                 }
-                console.log(dbRes);
                 let payload = {
                     userID: userID,
                     role: 'master_admin',
@@ -54,6 +53,6 @@ const pool = new Pool({
                         `SELECT * FROM users WHERE id = $1`, [userID]
                     );
             
-                    console.log(dbUser);
+                    console.log(dbUser.name);
                 }
 })();
