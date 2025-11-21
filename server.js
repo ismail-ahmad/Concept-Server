@@ -27,12 +27,13 @@ const authMiddleware = (req, res, next) => {
     let authHeader = req.headers.authorization;
     let activeToken = authHeader.split(' ')[1];
     //verify the activetoken received
+    let verified;
     try{
         verified = jwt.verify(activeToken, ACTIVE_JWT_SECRET);
     } catch(err){
         return res.status(403).json({message: 'active token expired!'});
     }
-    console.log('middleware');
+    console.log(verified);
     next();
 }
 
