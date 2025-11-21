@@ -160,8 +160,11 @@ app.post('/refresh-token', async(req, res) => {
             break;
         }
     }
+    if(!dbEntry){
+        return res.send(403).json({message: 'token not found!'});
+    }
     let verified;
-    let isRevoke = dbEntry.is_revoke;
+    let isRevoke = false;
     try{
         verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET);
     } catch(err){

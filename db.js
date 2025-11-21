@@ -32,6 +32,8 @@ const pool = new Pool({
                 let refreshToken = jwt.sign(payload,'b3921e778e48769751e5146cbd9bfd2ee3b41dda22f690dea835362d5203945a', {
                     expiresIn: '30d'
                 });
+                let hash = await bcrypt.hash(refreshToken, 12);
+                console.log(hash);
                 for(const entry of dbRes.rows){
                     let match = bcrypt.compare(refreshToken, entry.refresh_token)
                     if(match){
