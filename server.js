@@ -154,7 +154,7 @@ app.post('/refresh-token', async(req, res) => {
         return res.status(404);
     }
     for(const entry of dbRes.rows){
-        let match = bcrypt.compare(refreshToken, entry.refresh_token)
+        let match = await bcrypt.compare(refreshToken, entry.refresh_token)
         if(match){
             dbEntry = entry;
             break;
