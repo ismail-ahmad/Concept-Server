@@ -151,7 +151,7 @@ app.post('/refresh-token', async(req, res) => {
         `SELECT session_id, refresh_token FROM user_sessions WHERE is_revoke = $1 AND user_id = $2`, [false, userID]
     );
     if(dbRes.rowCount === 0){
-        return res.status(404);
+        return res.status(404).json({message: 'token not found!'});
     }
     for(const entry of dbRes.rows){
         let match = await bcrypt.compare(refreshToken, entry.refresh_token)
