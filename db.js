@@ -16,7 +16,7 @@ const pool = new Pool({
 (async() => {
     const dbRes = await pool.query(
         `
-        DELETE FROM user_sessions;
+        SELECT FROM user_sessions;
         `
     );
     console.log(dbRes.rowCount)

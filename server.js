@@ -161,7 +161,7 @@ app.post('/refresh-token', async(req, res) => {
         }
     }
     if(!dbEntry){
-        return res.send(403).json({message: 'token not found!'});
+        return res.send(404).json({message: 'token not found!'});
     }
     let verified;
     let isRevoke = false;
