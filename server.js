@@ -95,7 +95,7 @@ app.post('/signout', async (req, res) => {
     try{
         verified = jwt.verify(refreshToken, REFRESH_JWT_SECRET)
     } catch(err){
-        return res.status(401).json({ message: 'refresh token expired!' });
+        return res.status(403).json({ message: 'Refresh token expired!' });
     }
     
     const decoded = jwt.decode(refreshToken);
@@ -108,7 +108,7 @@ app.post('/signout', async (req, res) => {
         );
         
         if(dbRes.rowCount === 0){
-            return res.json({message: 'no token found!'})
+            return res.status(404).json({message: 'token not found!'});
         }
         let RF = null;
         for (const entry of dbRes.rows) {
@@ -120,7 +120,7 @@ app.post('/signout', async (req, res) => {
         }
 
         if (!RF) {
-            return res.status(401).json({ message: 'Invalid refresh token' });
+            return res.status(404).json({message: 'token not found!'});
         }
         
             
@@ -148,7 +148,7 @@ app.post('/refresh-token', async(req, res) => {
     let userID = decoded.userID;
     let dbEntry = null;
     let dbRes = await pool.query(
-        `SELECT session_id, refresh_token FROM user_sessions WHERE is_revoke = $1 AND user_id = $2`, [false, userID]
+        `SELECT session_id, refresh_token FROM user_sessions WHERE is_revoke = false AND user_id = $1`, [userID]
     );
     if(dbRes.rowCount === 0){
         return res.status(404).json({message: 'token not found!'});
