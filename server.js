@@ -108,7 +108,7 @@ app.post('/signout', async (req, res) => {
         );
         
         if(dbRes.rowCount === 0){
-            return res.status(404).json({message: 'token not found!'});
+            return res.status(404).json({message: 'no token found!'});
         }
         let RF = null;
         for (const entry of dbRes.rows) {
