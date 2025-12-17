@@ -120,7 +120,7 @@ app.post('/signout', async (req, res) => {
         }
 
         if (!RF) {
-            return res.status(404).json({message: 'token not found!'});
+            return res.status(404).json({message: 'no token found!'});
         }
         
             
