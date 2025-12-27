@@ -206,7 +206,7 @@ app.post('/add_new_client', async(req, res) => {
         INSERT INTO clients (client_name, id) VALUES ($1, $2);
         `, [clientName, clientId]);
     
-    res.status(200).json({message: 'new client added successfully!'});
+    res.status(200).json({message: 'new client added successfully!', ok: true, status: 200});
     } catch(err) {
         res.json({message: 'error occurred while processing the request to the database', err});
     }
