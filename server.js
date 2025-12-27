@@ -195,6 +195,23 @@ app.post('/refresh-token', async(req, res) => {
     }
 });
 
+app.post('/add_new_client', async(req, res) => {
+    //add new client to the database
+    const reqBody = JSON.parse(req.body);
+    const clientName = reqBody.clientName;
+    const clientId = reqBody.id;
+
+    try{
+        const pool = await pool.query(`
+        INSERT INTO clients (client_name, id) VALUES ($1, $2);
+        `, [clientName, clientId]);
+    
+    res.status(200).json({message: 'new client added successfully!'});
+    } catch(err) {
+        res.json({message: 'error occurred while processing the request to the database', err});
+    }
+});
+
 app.listen(port, () => {
     console.log(`server is listening at ${port}`);
 });

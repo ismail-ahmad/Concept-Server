@@ -14,12 +14,15 @@ const pool = new Pool({
 });
 
 (async() => {
+    const clientName = 'ismail';
+    const clientId = '123'
     const dbRes = await pool.query(
         `
-        UPDATE user_sessions 
-        SET is_revoke = true 
-        WHERE is_revoke = false;
-        `
-    );
-    console.log(dbRes.rowCount)
+        INSERT INTO clients (client_name, id) VALUES ($1, $2);
+        `, [clientName, clientId]);
+    console.log(dbRes)
 })();
+
+// UPDATE user_sessions 
+//         SET is_revoke = true 
+//         WHERE is_revoke = false;
