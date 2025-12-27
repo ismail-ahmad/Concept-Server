@@ -202,7 +202,7 @@ app.post('/add_new_client', async(req, res) => {
     const clientId = reqBody.id;
 
     try{
-        const pool = await pool.query(`
+        const DBQuery = await pool.query(`
         INSERT INTO clients (client_name, id) VALUES ($1, $2);
         `, [clientName, clientId]);
     
