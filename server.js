@@ -197,7 +197,7 @@ app.post('/refresh-token', async(req, res) => {
 
 app.post('/add_new_client', async(req, res) => {
     //add new client to the database
-    const reqBody = JSON.parse(req.body);
+    const reqBody = req.body;
     const clientName = reqBody.clientName;
     const clientId = reqBody.id;
 
