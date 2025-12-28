@@ -208,7 +208,7 @@ app.post('/add_new_client', async(req, res) => {
     
     res.status(200).json({message: 'new client added successfully!', ok: true, status: 200});
     } catch(err) {
-        res.json({message: 'error occurred while processing the request to the database', err});
+        res.json({ok: false, status: 500, message: 'error occurred while processing the request to the database', err});
     }
 });
 

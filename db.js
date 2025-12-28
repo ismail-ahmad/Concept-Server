@@ -18,8 +18,8 @@ const pool = new Pool({
     const clientId = '123'
     const dbRes = await pool.query(
         `
-        INSERT INTO clients (client_name, id) VALUES ($1, $2);
-        `, [clientName, clientId]);
+        DELETE FROM clients
+        `);
     console.log(dbRes)
 })();
 
