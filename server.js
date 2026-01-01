@@ -212,6 +212,10 @@ app.post('/add_new_client', async(req, res) => {
     }
 });
 
+app.post('add_user',  async(req, res) => {
+    res.json({ok: true, status: 200,message: 'req received'});
+});
+
 app.listen(port, () => {
     console.log(`server is listening at ${port}`);
 });

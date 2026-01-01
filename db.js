@@ -14,13 +14,11 @@ const pool = new Pool({
 });
 
 (async() => {
-    const clientName = 'ismail';
-    const clientId = '123'
     const dbRes = await pool.query(
         `
-        DELETE FROM clients
+        
         `);
-    console.log(dbRes)
+    // console.log(dbRes);
 })();
 
 // UPDATE user_sessions 
