@@ -16,9 +16,9 @@ const pool = new Pool({
 (async() => {
     const dbRes = await pool.query(
         `
-        
+        SELECT client_name, id FROM clients
         `);
-    // console.log(dbRes);
+    console.log(dbRes.rows);
 })();
 
 // UPDATE user_sessions 
