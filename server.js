@@ -213,12 +213,12 @@ app.post('/add_new_client', async(req, res) => {
 });
 
 app.post('/add_user',  async(req, res) => {
-    if (req.getCompany){
+    if (req.body.getCompany){
         try{
-            const res = await pool.query(`
+            const dbRes = await pool.query(`
                   SELECT client_name, id FROM clients
                 `);
-            res.status(200).json({ok: true, message: 'successful response', data: res.rows, status: 200});
+            res.status(200).json({ok: true, message: 'successful response', data: dbRes.rows, status: 200});
         } catch(err){
             res.json(err);
         }
